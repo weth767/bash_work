@@ -1,0 +1,15 @@
+## P r o j e t o de e x p e rim e n t o s para o programa PROG
+
+FATORES:
+A = ( 5 , 2 0 , 6 0 )
+B = ( 1 . 5 , 1 0 , 2 0 , 4 0 )
+C = ( 1 , 0 )
+COMANDO:
+prog $A −f $B −d $C
+
+ENSAIOS:
+1 = 5 , 1 0 , ∗
+2 = 2 0 , 4 0 , 0
+3 = ∗ , 1 . 5 , 1
+
+ ## fim do exemplo
