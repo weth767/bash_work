@@ -8,8 +8,8 @@ COMANDO:
 prog $A −f $B −d $C
 
 ENSAIOS:
-1 = 5 , 1 0 , ∗
-2 = 2 0 , 4 0 , 0
-3 = ∗ , 1 . 5 , 1
+1 = 5, 10, *
+2 = 20, 40, 0
+3 = 3, 1.5, 1
 
- ## fim do exemplo
+## fim do exemplo

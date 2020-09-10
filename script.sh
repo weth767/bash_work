@@ -5,6 +5,7 @@ comm=''
 factors=''
 tests=''
 variableList=()
+variableNames=()
 testList=()
 
 resolveFile() {
@@ -14,8 +15,8 @@ resolveFile() {
     comm=$(sed -n "/^COMANDO:/ {n;p}" $fileName)
     # pega o milisegundo atual para ser o nome da copia
     currentMili=$(date +%s%N)
-    # copia o arquivo
-    $(cp -u -f $fileName $currentMili)
+    # troca o caractere problematico por um mais suave e faz uma copia do arquivo
+    tr '*' '&' < $fileName > $currentMili
     # adiciona a palava fim ao final do arquivo
     sed -i -e '$aFIM' $currentMili
     # remove espaços em branco
@@ -30,28 +31,49 @@ resolveFile() {
     tests=$(sed -n '/ENSAIOS:/,/FIM/{/ENSAIOS:/!{/FIM/!p}}' $currentMili)
 }
 
-prepareValue() {
-    value=$1
-    replace=''
-    preparedValue=${value//*=/$replace}
-    testList+=($preparedValue)
+# prepara os fatores
+prepareVariables() {
+    for variables in ${factors[@]}
+    do
+        local replace=''
+        local name=${variables//=*/$replace}
+        variableNames+=($name)
+        variables=$(echo $variables | sed 's/[()]//g')
+        local preparedValue=${variables//*=/$replace}
+        IFS=','
+        local temp
+        read -a temp <<< $preparedValue
+        local tList=()
+        for i in ${temp[@]}
+        do
+            local c  
+            IFS=' '
+            read -a c <<< $i
+            tList+=($c)
+        done
+        tList+=("END")
+        variableList+=(${tList[@]})
+    done
 }
 
-prepareVariables() {
-    # prepara os fatores
-    for variables in $factors
+# prepara os ensaios
+prepareTests() {
+    local tempTest=$(echo $tests | tr '\n' ' ')
+    for test in ${tempTest[@]}
     do
-        variableList+=($variables)
-    done
-    # prepara os ensaios
-    list=()
-    for test in $tests
-    do
-        list+=($test)
-    done
-    for test in ${list[@]}
-    do
-        prepareValue $test
+        local repl=''
+        test=$(echo $test | sed 's/[()]//g')
+        local prepValue=${test//*=/$repl}
+        local tp
+        read -a tp <<< $prepValue
+        local tpList=()
+        for j in ${tp[@]}
+        do
+            local newT=$(echo $j | tr ',' ' ' )
+            tpList+=($newT)
+        done
+        tpList+=("END")
+        testList+=(${tpList[@]})
     done
 }
 
@@ -61,8 +83,70 @@ main() {
     # passa para o método de tratamento
     resolveFile $configFile
     prepareVariables
-    #$echo $comm
-    #echo $factors
+    prepareTests
+    local counter=0
+    local localComm=$comm
+    local commands=()
+    for test in ${testList[@]}
+    do
+        if [[ $test != "END" ]] 
+        then
+            if [[ $test == "&" ]] 
+            then
+                local value=()
+                local endCounter=0 
+                for g in ${variableList[@]}
+                do  
+                    if [[ $g != "END" ]]
+                    then
+                        value+=($g)
+                    else
+                        if [[ $endCounter == $counter ]]
+                        then
+                            break
+                        else
+                            endCounter=$(($endCounter+1))
+                            value=()
+                        fi
+                    fi
+                done
+                for h in ${value[@]}
+                do
+                    localComm=${localComm//${variableNames[$counter]}/$h}
+                    commands+=($localComm)
+                    localComm=$comm
+                done
+                
+            else
+                if [[ ${#commands[@]} != 0 ]]
+                then
+                    for c in ${commands[@]}
+                    do
+                        c=${c//${variableNames[$counter]}/$test}
+                    done
+                else
+                    localComm=$comm
+                    localComm=${localComm//${variableNames[$counter]}/$test}
+                    commands+=($localComm)  
+                fi
+            fi
+        else
+            # rodar o comando de fato e salvar no log
+            for c in ${commands[@]}
+            do
+                c=${c//$/''}
+                echo "== $localComm =="
+                #$(eval $localComm)
+            done
+            # reseta o comando novamente
+            localComm=$comm
+            commands=()
+            # reseta o counter
+            counter=$((-1))
+        fi
+        counter=$(($counter+1))
+    done
+    #echo ${variableList[@]}
     $(rm -rf $currentMili)
 }
 
