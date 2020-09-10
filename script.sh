@@ -89,14 +89,18 @@ main() {
     local commands=()
     for test in ${testList[@]}
     do
+        # verifica se não chegou em um ponto de fim da lista, fim da lista da lista
         if [[ $test != "END" ]] 
         then
+            # se encontrou o &, quer dizer que precisa variar os valores
             if [[ $test == "&" ]] 
             then
                 local value=()
                 local endCounter=0 
+                # então vai na lista de valores de variaveis
                 for g in ${variableList[@]}
                 do  
+                    # pega os valores daquela variavel
                     if [[ $g != "END" ]]
                     then
                         value+=($g)
@@ -110,34 +114,39 @@ main() {
                         fi
                     fi
                 done
-                for h in ${value[@]}
+                # depois de encontrar os values de variação, precisa criar comandos
+                # para a quantidade de variação
+                for v in ${value[@]}
                 do
-                    localComm=${localComm//${variableNames[$counter]}/$h}
-                    commands+=($localComm)
-                    localComm=$comm
+                    # pega como base o que ta salvo no localComm
+                    commands+=(${localComm//${variableNames[$counter]}/$v})
                 done
-                
             else
-                if [[ ${#commands[@]} != 0 ]]
+                # encontrou um valor fixo, então so precisa dar um replace em seu valor no comando
+                # se não tiver comandos, então so substitui o comando local
+                if [[ ${#commands[@]} == 0 ]]
                 then
+                    localComm=${localComm//${variableNames[$counter]}/$test}
+                    #echo " -- $localComm -- "
+                    commands+=($localComm)
+                else
+                    # se tiver, passa na lista de comandos, substituindo
+                    # for (( x=0 ; ((x-${#commands}-1)) ; x=(($x+1)) ))
+                    # do
+                        
+                    #     ${commands[$x]}=${commands[$x]//${variableNames[$counter]}/$test}
+                    # done
+                    local l=()
                     for c in ${commands[@]}
                     do
-                        c=${c//${variableNames[$counter]}/$test}
+                        l+=(${c//${variableNames[$counter]}/$test})
                     done
-                else
-                    localComm=$comm
-                    localComm=${localComm//${variableNames[$counter]}/$test}
-                    commands+=($localComm)  
+                    commands=()
+                    commands=${l[@]}
                 fi
             fi
         else
-            # rodar o comando de fato e salvar no log
-            for c in ${commands[@]}
-            do
-                c=${c//$/''}
-                echo "== $localComm =="
-                #$(eval $localComm)
-            done
+            echo ${commands[@]}
             # reseta o comando novamente
             localComm=$comm
             commands=()
