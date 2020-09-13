@@ -1,17 +1,15 @@
 ## P r o j e t o de e x p e rim e n t o s para o programa PROG
 
 FATORES:
-A = ( 5 , 2 0 , 6 0 )
-B = ( 1 . 5 , 1 0 , 2 0 , 4 0 )
-C = ( 1 , 0 )
+A = (a, l, , u)
+
 COMANDO:
-prog $A −f $B −d $C
+ls -$A
 
 ENSAIOS:
-#1 = 5, 10, *
-2 = 20, 40, 0
-#3 = *, 1.5, 1
-4 = 50, 10, 15
-5 = 3, 7, 10
+1 = a
+2 = l
+3 = r
+4 = u
 
 ## fim do exemplo

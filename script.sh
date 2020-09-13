@@ -80,6 +80,11 @@ prepareTests() {
 main() {
     # pega o nome do arquivo de configuração
     configFile=$1
+    outFile=$2
+    if [[ -f "$outFile" ]]; then
+        $(rm -rf $outFile)
+    fi
+    $(touch $outFile)
     # passa para o método de tratamento
     resolveFile $configFile
     prepareVariables
@@ -116,11 +121,30 @@ main() {
                 done
                 # depois de encontrar os values de variação, precisa criar comandos
                 # para a quantidade de variação
-                for v in ${value[@]}
-                do
-                    # pega como base o que ta salvo no localComm
-                    commands+=(${localComm//${variableNames[$counter]}/$v})
-                done
+                # se não houver comandos, simplesmente adiciona na lista de comandos
+                if [[ ${#commands[@]} == 0 ]]
+                then
+                    for v in ${value[@]}
+                    do
+                        # pega como base o que ta salvo no localComm
+                        commands+=(${localComm//${variableNames[$counter]}/$v})
+                        commands+=(";")
+                    done
+                else
+                    # caso não exista, tera um tratamento
+                    local tmpList=()
+                    for p in ${value[@]}
+                    do
+                        local li=()
+                        for c in ${commands[@]}
+                        do
+                            li+=(${c//${variableNames[$counter]}/$p})
+                        done
+                        tmpList+=(${li[@]})
+                    done
+                    commands=()
+                    commands=${tmpList[@]}
+                fi
             else
                 # encontrou um valor fixo, então so precisa dar um replace em seu valor no comando
                 # se não tiver comandos, então so substitui o comando local
@@ -129,13 +153,9 @@ main() {
                     localComm=${localComm//${variableNames[$counter]}/$test}
                     #echo " -- $localComm -- "
                     commands+=($localComm)
+                    commands+=(";")
                 else
                     # se tiver, passa na lista de comandos, substituindo
-                    # for (( x=0 ; ((x-${#commands}-1)) ; x=(($x+1)) ))
-                    # do
-                        
-                    #     ${commands[$x]}=${commands[$x]//${variableNames[$counter]}/$test}
-                    # done
                     local l=()
                     for c in ${commands[@]}
                     do
@@ -146,7 +166,36 @@ main() {
                 fi
             fi
         else
-            echo ${commands[@]}
+            local auxList=()
+            for co in ${commands[@]}
+            do
+                local modV=${co//$/''}
+                auxList+=($modV)
+            done
+            commands=()
+            commands=${auxList[@]}
+            IFS=';'
+            read -a commands <<< ${auxList[@]}
+            # executa os comandos
+            for cm in ${commands[@]}
+            do
+                local startEx=`date +%s.%N`
+                local execCommand=$(eval $cm)
+                local endEx=`date +%s.%N`
+                local duration=$(echo "$endEx-$startEx" | bc -l)
+                local prepare1=$(echo "$duration" | cut -d'.' -f1)
+                local prepare2=$(echo "$duration" | cut -d'.' -f2)
+                if [ -z $prepare1 ]
+                then 
+                    prepare1="0"
+                fi
+                local finalPrepare=$(echo $(date -u -d@"$(($prepare1))" +"%H:%M:%S").$prepare2)
+                $(echo "EXPERIMENTO " $cm ' -- DURAÇÃO: ' $finalPrepare >> $outFile)
+                $(echo "SAIDA: " >> $outFile)
+                $(echo $execCommand >> $outFile)
+                $(echo "" >> $outFile)
+            done 
+            #echo $(eval ${commands[@]} > saida.txt)
             # reseta o comando novamente
             localComm=$comm
             commands=()
@@ -157,9 +206,10 @@ main() {
     done
     #echo ${variableList[@]}
     $(rm -rf $currentMili)
+    # FALTA AINDA EXPORTAR O LOG DO RESULTADO DOS EXPERIMENTOS
 }
 
-main $1
+main $1 $2
 
 # sed -n '/^COMANDO:/ {n;p}' config.txt
 # transforma tudo em lower case: sed -e 's/\(.*\)/\L\1/'
