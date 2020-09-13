@@ -90,7 +90,7 @@ main() {
     prepareVariables
     prepareTests
     local counter=0
-    local localComm=$comm
+    local localComm=$comm" ;"
     local commands=()
     for test in ${testList[@]}
     do
@@ -128,7 +128,6 @@ main() {
                     do
                         # pega como base o que ta salvo no localComm
                         commands+=(${localComm//${variableNames[$counter]}/$v})
-                        commands+=(";")
                     done
                 else
                     # caso não exista, tera um tratamento
@@ -153,7 +152,6 @@ main() {
                     localComm=${localComm//${variableNames[$counter]}/$test}
                     #echo " -- $localComm -- "
                     commands+=($localComm)
-                    commands+=(";")
                 else
                     # se tiver, passa na lista de comandos, substituindo
                     local l=()
@@ -190,32 +188,21 @@ main() {
                     prepare1="0"
                 fi
                 local finalPrepare=$(echo $(date -u -d@"$(($prepare1))" +"%H:%M:%S").$prepare2)
-                $(echo "EXPERIMENTO " $cm ' -- DURAÇÃO: ' $finalPrepare >> $outFile)
+                $(echo "EXPERIMENTO " $cm '-- DURAÇÃO: ' $finalPrepare >> $outFile)
                 $(echo "SAIDA: " >> $outFile)
                 $(echo $execCommand >> $outFile)
                 $(echo "" >> $outFile)
             done 
             #echo $(eval ${commands[@]} > saida.txt)
             # reseta o comando novamente
-            localComm=$comm
+            localComm=$comm" ;"
             commands=()
             # reseta o counter
             counter=$((-1))
         fi
         counter=$(($counter+1))
     done
-    #echo ${variableList[@]}
     $(rm -rf $currentMili)
-    # FALTA AINDA EXPORTAR O LOG DO RESULTADO DOS EXPERIMENTOS
 }
 
 main $1 $2
-
-# sed -n '/^COMANDO:/ {n;p}' config.txt
-# transforma tudo em lower case: sed -e 's/\(.*\)/\L\1/'
-# remove espaços em branco: sed -i "s/ //g" config.txt
-# adiciona a palavra FIM ao fim do arquivo: sed -i -e '$aFIM' config.txt
-# remove linhas em branco: sed -i '/^\s*$/d' config.txt 
-# remove linhas que começam com #: sed -i '/^#/d' config.txt
-# sed -n '/FATORES:/,/COMANDO:/{/FATORES:/!{/COMANDO:/!p}}' config.txt
-# sed -n '/ENSAIO:/,/FIM:/{/FATORES:/!{/COMANDO:/!p}}' config.txt

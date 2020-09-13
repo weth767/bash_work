@@ -1,15 +1,13 @@
 ## P r o j e t o de e x p e rim e n t o s para o programa PROG
 
 FATORES:
-A = (a, l, , u)
+A = (a, l)
 
 COMANDO:
 ls -$A
 
 ENSAIOS:
-1 = a
-2 = l
-3 = r
-4 = u
+1 = l
+2 = a
 
 ## fim do exemplo
