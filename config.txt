@@ -7,7 +7,7 @@ COMANDO:
 ls -$A
 
 ENSAIOS:
-1 = l
-2 = a
+1 = *
+2 = *
 
 ## fim do exemplo

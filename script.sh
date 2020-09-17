@@ -172,26 +172,34 @@ main() {
             done
             commands=()
             commands=${auxList[@]}
-            IFS=';'
-            read -a commands <<< ${auxList[@]}
+            #echo ${commands[@]}
+            local aux=($(echo ${commands[@]} | tr ';' ';'))
             # executa os comandos
+            local commingCommand=""
             for cm in ${commands[@]}
             do
-                local startEx=`date +%s.%N`
-                local execCommand=$(eval $cm)
-                local endEx=`date +%s.%N`
-                local duration=$(echo "$endEx-$startEx" | bc -l)
-                local prepare1=$(echo "$duration" | cut -d'.' -f1)
-                local prepare2=$(echo "$duration" | cut -d'.' -f2)
-                if [ -z $prepare1 ]
-                then 
-                    prepare1="0"
+                
+                if [[ $cm == ';' ]]
+                then
+                    local startEx=`date +%s.%N`
+                    local execCommand=$(eval $commingCommand)
+                    local endEx=`date +%s.%N`
+                    local duration=$(echo "$endEx-$startEx" | bc -l)
+                    local prepare1=$(echo "$duration" | cut -d'.' -f1)
+                    local prepare2=$(echo "$duration" | cut -d'.' -f2)
+                    if [ -z $prepare1 ]
+                    then 
+                        prepare1="0"
+                    fi
+                    local finalPrepare=$(echo $(date -u -d@"$(($prepare1))" +"%H:%M:%S").$prepare2)
+                    $(echo "EXPERIMENTO " $commingCommand '-- DURAÇÃO: ' $finalPrepare >> $outFile)
+                    $(echo "SAIDA: " >> $outFile)
+                    $(echo $execCommand >> $outFile)
+                    $(echo "" >> $outFile)
+                    commingCommand=""
+                else
+                    commingCommand="${commingCommand} ${cm}"
                 fi
-                local finalPrepare=$(echo $(date -u -d@"$(($prepare1))" +"%H:%M:%S").$prepare2)
-                $(echo "EXPERIMENTO " $cm '-- DURAÇÃO: ' $finalPrepare >> $outFile)
-                $(echo "SAIDA: " >> $outFile)
-                $(echo $execCommand >> $outFile)
-                $(echo "" >> $outFile)
             done 
             #echo $(eval ${commands[@]} > saida.txt)
             # reseta o comando novamente

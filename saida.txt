@@ -1,22 +1,44 @@
-EXPERIMENTO  ls -l  -- DURAÇÃO:  00:00:00.002117944
-SAIDA: 
-total 72
--rw-rw-r-- 1 weth weth   53 set 13 17:00 1600027219286302359
--rw-rw-r-- 1 weth weth  142 set 13 17:00 config.txt
--rw-rw-r-- 1 weth weth  386 set 10 15:46 log.txt
--rw-rw-r-- 1 weth weth   11 set  7 15:25 README.md
--rw-rw-r-- 1 weth weth    0 set 13 17:00 saida.txt
--rwxrwxr-x 1 weth weth 6768 set 13 17:00 script.sh
-
-EXPERIMENTO  ls -a  -- DURAÇÃO:  00:00:00.001690025
+EXPERIMENTO  ls -a -- DURAÇÃO:  00:00:00.003294783
 SAIDA: 
 .
 ..
-1600027219286302359
+1600376341304427615
 config.txt
 .git
 log.txt
 README.md
 saida.txt
 script.sh
+
+EXPERIMENTO  ls -l -- DURAÇÃO:  00:00:00.004047873
+SAIDA: 
+total 76
+-rw-rw-r-- 1 weth weth 53 set 17 17:59 1600376341304427615
+-rw-rw-r-- 1 weth weth 142 set 17 17:58 config.txt
+-rw-rw-r-- 1 weth weth 386 set 10 15:46 log.txt
+-rw-rw-r-- 1 weth weth 11 set 7 15:25 README.md
+-rw-rw-r-- 1 weth weth 141 set 17 17:59 saida.txt
+-rwxrwxr-x 1 weth weth 7127 set 17 17:58 script.sh
+
+EXPERIMENTO  ls -a -- DURAÇÃO:  00:00:00.003213340
+SAIDA: 
+.
+..
+1600376341304427615
+config.txt
+.git
+log.txt
+README.md
+saida.txt
+script.sh
+
+EXPERIMENTO  ls -l -- DURAÇÃO:  00:00:00.003907874
+SAIDA: 
+total 76
+-rw-rw-r-- 1 weth weth 53 set 17 17:59 1600376341304427615
+-rw-rw-r-- 1 weth weth 142 set 17 17:58 config.txt
+-rw-rw-r-- 1 weth weth 386 set 10 15:46 log.txt
+-rw-rw-r-- 1 weth weth 11 set 7 15:25 README.md
+-rw-rw-r-- 1 weth weth 660 set 17 17:59 saida.txt
+-rwxrwxr-x 1 weth weth 7127 set 17 17:58 script.sh
 
